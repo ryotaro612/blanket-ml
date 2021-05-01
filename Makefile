@@ -29,6 +29,6 @@ $(BASE_DIR).env:
 	echo "GOOGLE_PROJECT_ID=" >> $(BASE_DIR).env
 
 
-raw_email: ## Fetch raw email events.
+raw_email: $(BASE_DIR).env ## Fetch raw email events.
 	. $(VENV)bin/activate && \
 	beat_analytics email raw $(DATASETS_DIR)raw_email_events$(SUFFIX).csv
