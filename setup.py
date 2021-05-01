@@ -8,6 +8,6 @@ setup(
     install_requires=["click", "google-cloud-bigquery", "python-dotenv"],
     entry_points={"console_scripts": ["beat_analytics=beat_analytics:main"]},
     extras_require={
-        "dev": ["black"],
+        "dev": ["black", "ipython"],
     },
 )
