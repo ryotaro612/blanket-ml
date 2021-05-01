@@ -1,6 +1,7 @@
 import logging
 import click
 import dotenv
+import .email
 
 dotenv.load_dotenv()
 
@@ -18,4 +19,4 @@ def main(verbose: bool):
 
 @main.command()
 def fetch_email_events():
-    raise RuntimeError()
+    email.fetch_events()
