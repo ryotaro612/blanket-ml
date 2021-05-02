@@ -2,6 +2,8 @@ import logging
 import click
 import dotenv
 from . import email as e
+from . import bigquery
+from . import edge_web
 
 dotenv.load_dotenv()
 
@@ -24,4 +26,17 @@ def email():
 @click.argument("output")
 def fetch_email_raw_events(output: str):
     """ """
-    e.fetch_raw_events(output)
+    client = bigquery.create_client()
+    e.fetch_raw_events(client, output)
+
+
+@main.group()
+def web():
+    pass
+
+
+@web.command("raw")
+@click.argument("output")
+def fetch_raw_requests(output: str):
+    client = bigquery.create_client()
+    edge_web.fetch_raw_events(client, output)
