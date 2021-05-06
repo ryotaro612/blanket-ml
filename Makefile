@@ -16,7 +16,7 @@ test: $(VENV)bin/activate $(BASE_DIR).env ## Run unit tests.
 clean: ## Delete unnecessary files.
 	rm -rf $(VENV) $(PYENV_FILE)
 
-all: $(DATASETS_DIR)raw_email_events$(SUFFIX).csv $(DATASETS_DIR)raw_requests$(SUFFIX).csv
+all: $(DATASETS_DIR)raw_email_events$(SUFFIX).csv $(DATASETS_DIR)raw_requests$(SUFFIX).csv ## Create all the artifacts.
 	@echo
 
 $(DATASETS_DIR)raw_email_events$(SUFFIX).csv: ## Fetch raw email events.
