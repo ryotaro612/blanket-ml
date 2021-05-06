@@ -5,6 +5,7 @@ from . import email as em
 from . import bigquery
 from . import edge_web
 from . import user as us
+from . import plan as p
 
 dotenv.load_dotenv()
 
@@ -39,16 +40,14 @@ def format_raw_events(input: str, output: str):
     em.format_raw_events(input, output)
 
 
-@email.group("open")
-def email_open():
-    pass
-
-
-@email_open.command("free")
-@click.argument("input")
+@email.command("open")
+@click.argument("events_file")
+@click.argument("users_file")
+@click.argument("plan_file")
 @click.argument("output")
-def email_open_free(input: str, output: str):
-    raise NotImplementedError()
+def email_open(events_file: str, users_file: str, plan_file: str, output: str):
+    plans = p.create_plan(plan_file)
+    em.filter_email_open_events(events_file, users_file, plans, output)
 
 
 @main.group()

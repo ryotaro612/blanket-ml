@@ -1,7 +1,10 @@
 import csv
 import json
 import os
+import datetime
+import jsonlines
 import google.cloud.bigquery as bq
+import beat_analytics.user as user
 
 
 def fetch_raw_events(client: bq.Client, output_filename: str):
@@ -55,3 +58,37 @@ def format_raw_events(input: str, output: str):
                         "timestamp": row["timestamp"],
                     }
                 )
+
+
+def load_event_file(filename: str):
+    with open(filename) as f:
+        result = []
+        for record in csv.DictReader(f):
+            record["timestamp"] = datetime.datetime.strptime(
+                record["timestamp"], "%Y-%m-%d %H:%M:%S.%f%z"
+            )
+            result.append(record)
+        return result
+
+
+def filter_email_open_events(
+    events_file: str, users_file: str, plans: dict, output: str
+):
+    events = load_event_file(events_file)
+    open_events = [event for event in events if event["event"] == "open"]
+    if len(open_events) == 0:
+        return
+    users = user.load_user_master(users_file)
+
+    mail_user = dict((user["email"], user) for user in users)
+    with open(output, "w") as f:
+        writer = csv.DictWriter(
+            f, fieldnames=list(open_events[0].keys()) + ["user status"]
+        )
+        writer.writeheader()
+        for event in open_events:
+            plan_id = user.resolve_plan_id_by_email(
+                event["email"], event["timestamp"], mail_user, plans
+            )
+            event["user status"] = plans.get(plan_id, "Free")
+            writer.writerow(event)

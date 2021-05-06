@@ -1,4 +1,5 @@
 import csv
+import datetime
 import jsonlines
 
 
@@ -53,10 +54,13 @@ def format_user_plans(user_plans) -> dict:
             "user_plan_id": user_plan_id,
             "created_date": plan["created_date"],
             "cancel_date": replace_null(plan["cancel_date"]),
+            "start_date": replace_null(plan["start_date"]),
             "end_date": replace_null(plan["end_date"]),
+            "status": replace_null(plan["status"]),
             "subscription_id": subscription_id if subscription_id else None,
             "updated_date": plan["updated_date"],
             "paid": transform_bool(plan["paid"]),
+            "plan_id": int(plan["plan_id"]),
         }
     return results
 
@@ -71,9 +75,52 @@ def format_plan_histories(plan_histories):
     return results
 
 
+def load_user_master(filename: str):
+    with jsonlines.open(filename) as users:
+        result = []
+        for user in users:
+            plans = []
+            for plan in user["plans"]:
+                plan["start_date"] = parse_datetime(plan["start_date"])
+                plan["cancel_date"] = parse_datetime(plan["cancel_date"])
+                plan["end_date"] = parse_datetime(plan["end_date"])
+                plans.append(plan)
+            user["plans"] = plans
+            result.append(user)
+        return result
+
+
 def transform_bool(sign: str):
     return not "\\0" == sign
 
 
 def replace_null(value: str):
     return value if value != "NULL" else None
+
+
+def resolve_plan_id_by_email(
+    email: str, timestamp: datetime.datetime, email_user: dict, plans: dict
+):
+    if email not in email_user:
+        return None
+    for plan in email_user[email]["plans"]:
+        start = plan["start_date"]
+        end = plan["end_date"]
+        cancel = plan["cancel_date"]
+        if start <= timestamp and not end and not cancel:
+            return plan["plan_id"]
+        if start <= timestamp and (
+            end and timestamp <= end or cancel and timestamp <= cancel
+        ):
+            return plan["plan_id"]
+    return None
+
+
+def parse_datetime(datetime_str):
+    return (
+        datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S.%f").astimezone(
+            datetime.timezone.utc
+        )
+        if datetime_str
+        else None
+    )
