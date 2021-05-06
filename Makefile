@@ -16,17 +16,24 @@ test: $(VENV)bin/activate $(BASE_DIR).env ## Run unit tests.
 clean: ## Delete unnecessary files.
 	rm -rf $(VENV) $(PYENV_FILE)
 
-all: $(DATASETS_DIR)raw_email_events$(SUFFIX).csv $(DATASETS_DIR)raw_requests$(SUFFIX).csv ## Create all the artifacts.
+mail_raw_email_events_file := $(DATASETS_DIR)raw_email_events$(SUFFIX).csv
+mail_open_free_file := $(DATASETS_DIR)mail_open_free.csv
+requests_raw_file := $(DATASETS_DIR)raw_requests$(SUFFIX).csv
+
+all: $(mail_raw_email_events_file) $(requests_raw_file) ## Create all the artifacts.
 	@echo
 
-$(DATASETS_DIR)raw_email_events$(SUFFIX).csv: ## Fetch raw email events.
+$(mail_raw_email_events_file): ## Fetch raw email events.
 	. $(VENV)bin/activate && \
-	beat_analytics email raw $(DATASETS_DIR)raw_email_events$(SUFFIX).csv
+	beat_analytics email raw $(mail_raw_email_events_file)
 
-
-$(DATASETS_DIR)raw_requests$(SUFFIX).csv: ## Fetch raw requests.
+$(requests_raw_file): ## Fetch raw requests.
 	. $(VENV)bin/activate && \
-	beat_analytics web raw $(DATASETS_DIR)raw_requests$(SUFFIX).csv
+	beat_analytics web raw $(requests_raw_file)
+
+$(mail_open_free_file):
+	. $(VENV)bin/activate && \
+	beat_analytics mail open $(requests_raw_file) $(mail_open_free_file)
 
 $(PYENV_FILE):
 	cd $(BASE_DIR) && pyenv local 3.9.0
