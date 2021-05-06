@@ -17,10 +17,10 @@ clean: ## Delete unnecessary files.
 	rm -rf $(VENV) $(PYENV_FILE)
 
 mail_raw_email_events_file := $(DATASETS_DIR)raw_email_events$(SUFFIX).csv
-mail_open_free_file := $(DATASETS_DIR)mail_open_free.csv
+mail_format_events_file := $(DATASETS_DIR)mail_format_events.csv
 requests_raw_file := $(DATASETS_DIR)raw_requests$(SUFFIX).csv
 
-all: $(mail_raw_email_events_file) $(requests_raw_file) ## Create all the artifacts.
+all: $(mail_format_events_file) $(requests_raw_file) ## Create all the artifacts.
 	@echo
 
 $(mail_raw_email_events_file): ## Fetch raw email events.
@@ -31,9 +31,9 @@ $(requests_raw_file): ## Fetch raw requests.
 	. $(VENV)bin/activate && \
 	beat_analytics web raw $(requests_raw_file)
 
-$(mail_open_free_file):
+$(mail_format_events_file): $(mail_raw_email_events_file)
 	. $(VENV)bin/activate && \
-	beat_analytics mail open $(requests_raw_file) $(mail_open_free_file)
+	beat_analytics email format $(mail_raw_email_events_file) $(mail_format_events_file)
 
 $(PYENV_FILE):
 	cd $(BASE_DIR) && pyenv local 3.9.0

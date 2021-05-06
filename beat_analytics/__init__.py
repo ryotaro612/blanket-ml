@@ -1,7 +1,7 @@
 import logging
 import click
 import dotenv
-from . import email as e
+from . import email as em
 from . import bigquery
 from . import edge_web
 
@@ -27,7 +27,15 @@ def email():
 def fetch_email_raw_events(output: str):
     """ """
     client = bigquery.create_client()
-    e.fetch_raw_events(client, output)
+    em.fetch_raw_events(client, output)
+
+
+@email.command("format")
+@click.argument("input")
+@click.argument("output")
+def format_raw_events(input: str, output: str):
+    """ """
+    em.format_raw_events(input, output)
 
 
 @main.group()
