@@ -71,8 +71,7 @@ def user():
 @user.command("master")
 @click.argument("user")
 @click.argument("user_plan")
-@click.argument("plan")
 @click.argument("plan_history")
 @click.argument("output")
-def user_master(user: str, user_plan: str, plan: str, plan_history: str, output: str):
-    us.user_master(user, user_plan, plan, plan_history, output)
+def user_master(user: str, user_plan: str, plan_history: str, output: str):
+    us.user_master(user, user_plan, plan_history, output)

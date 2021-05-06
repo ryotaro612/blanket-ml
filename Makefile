@@ -20,7 +20,7 @@ mail_raw_email_events_file := $(DATASETS_DIR)raw_email_events$(SUFFIX).csv
 mail_format_events_file := $(DATASETS_DIR)mail_format_events.csv
 mail_open_free_file := $(DATASETS_DIR)mail_open_free.csv
 requests_raw_file := $(DATASETS_DIR)raw_requests$(SUFFIX).csv
-user_master_file := $(DATASETS_DIR)master_user.jsonl
+user_master_file := $(DATASETS_DIR)users_master.jsonl
 
 all: $(user_master_file) $(mail_format_events_file) $(requests_raw_file) ## Create all the artifacts.
 	@echo
@@ -42,9 +42,9 @@ $(mail_open_free_file): $(mail_format_events_file)
 	. $(VENV)bin/activate && \
 	beat_analytics email open free $(mail_format_events_file) $(mail_open_free_file)
 
-$(user_master_file): $(DATASETS_DIR)user.tsv $(DATASETS_DIR)user_plan.tsv $(DATASETS_DIR)plan.tsv $(DATASETS_DIR)plan_history.tsv
+$(user_master_file): $(DATASETS_DIR)user.tsv $(DATASETS_DIR)user_plan.tsv $(DATASETS_DIR)plan_history.tsv
 	. $(VENV)bin/activate && \
-	beat_analytics user master $(DATASETS_DIR)user.tsv $(DATASETS_DIR)user_plan.tsv $(DATASETS_DIR)plan.tsv $(DATASETS_DIR)plan_history.tsv $(user_master_file)
+	beat_analytics user master $(DATASETS_DIR)user.tsv $(DATASETS_DIR)user_plan.tsv $(DATASETS_DIR)plan_history.tsv $(user_master_file)
 
 $(PYENV_FILE):
 	cd $(BASE_DIR) && pyenv local 3.9.0

@@ -5,7 +5,6 @@ import jsonlines
 def user_master(
     user_file: str,
     user_plan_file: str,
-    plan_file: str,
     plan_history_file: str,
     output: str,
 ):
@@ -35,7 +34,7 @@ def format_users(users: [dict]):
         {
             "user_id": int(user["id"]),
             "created_date": user["created_date"],
-            "is_deleted": not "\\0" == user["is_deleted"],
+            "is_deleted": transform_bool(user["is_deleted"]),
             "updated_date": user["updated_date"],
             "email": user["email"],
             "external_user_id": user["external_user_id"],
@@ -48,7 +47,17 @@ def format_users(users: [dict]):
 def format_user_plans(user_plans) -> dict:
     results = {}
     for plan in user_plans:
-        results[int(plan["id"])] = plan
+        user_plan_id = int(plan["id"])
+        subscription_id = replace_null(plan["subscription_id"])
+        results[user_plan_id] = {
+            "user_plan_id": user_plan_id,
+            "created_date": plan["created_date"],
+            "cancel_date": replace_null(plan["cancel_date"]),
+            "end_date": replace_null(plan["end_date"]),
+            "subscription_id": subscription_id if subscription_id else None,
+            "updated_date": plan["updated_date"],
+            "paid": transform_bool(plan["paid"]),
+        }
     return results
 
 
@@ -60,3 +69,11 @@ def format_plan_histories(plan_histories):
         plans.append(int(history["old_user_plan_id"]))
         results[user_id] = plans
     return results
+
+
+def transform_bool(sign: str):
+    return not "\\0" == sign
+
+
+def replace_null(value: str):
+    return value if value != "NULL" else None
