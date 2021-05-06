@@ -92,3 +92,31 @@ def filter_email_open_events(
             )
             event["user status"] = plans.get(plan_id, "Free")
             writer.writerow(event)
+
+
+def filter_email_click_events(
+    events_file: str, users_file: str, plans: dict, output: str
+):
+    filter_events(events_file, users_file, plans, "click", output)
+
+
+def filter_events(
+    events_file: str, users_file: str, plans: dict, event_type: str, output: str
+):
+    events = load_event_file(events_file)
+    selected_events = [event for event in events if event["event"] == event_type]
+    if len(selected_events) == 0:
+        return
+    users = user.load_user_master(users_file)
+    mail_user = dict((user["email"], user) for user in users)
+    with open(output, "w") as f:
+        writer = csv.DictWriter(
+            f, fieldnames=list(selected_events[0].keys()) + ["user status"]
+        )
+        writer.writeheader()
+        for event in selected_events:
+            plan_id = user.resolve_plan_id_by_email(
+                event["email"], event["timestamp"], mail_user, plans
+            )
+            event["user status"] = plans.get(plan_id, "Free")
+            writer.writerow(event)

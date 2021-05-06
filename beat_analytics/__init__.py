@@ -50,6 +50,16 @@ def email_open(events_file: str, users_file: str, plan_file: str, output: str):
     em.filter_email_open_events(events_file, users_file, plans, output)
 
 
+@email.command("click")
+@click.argument("events_file")
+@click.argument("users_file")
+@click.argument("plan_file")
+@click.argument("output")
+def email_click(events_file: str, users_file: str, plan_file: str, output: str):
+    plans = p.create_plan(plan_file)
+    em.filter_email_click_events(events_file, users_file, plans, output)
+
+
 @main.group()
 def web():
     pass

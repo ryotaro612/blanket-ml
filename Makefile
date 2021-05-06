@@ -19,11 +19,12 @@ clean: ## Delete unnecessary files.
 mail_raw_email_events_file := $(DATASETS_DIR)raw_email_events$(SUFFIX).csv
 mail_format_events_file := $(DATASETS_DIR)mail_format_events.csv
 mail_open_file := $(DATASETS_DIR)mail_open.csv
+mail_click_file := $(DATASETS_DIR)mail_click.csv
 requests_raw_file := $(DATASETS_DIR)raw_requests$(SUFFIX).csv
 user_master_file := $(DATASETS_DIR)users_master.jsonl
 plan_master_file := $(DATASETS_DIR)plan.tsv
 
-all: $(mail_open_file) $(requests_raw_file) ## Create all the artifacts.
+all: $(mail_open_file) $(mail_click_file) $(requests_raw_file) ## Create all the artifacts.
 	@echo
 
 $(mail_raw_email_events_file): ## Fetch raw email events.
@@ -41,6 +42,10 @@ $(mail_format_events_file): $(mail_raw_email_events_file)
 $(mail_open_file): $(mail_format_events_file) $(user_master_file) $(plan_master_file)
 	. $(VENV)bin/activate && \
 	beat_analytics email open $(mail_format_events_file) $(user_master_file) $(plan_master_file) $(mail_open_file)
+
+$(mail_click_file): $(mail_format_events_file) $(user_master_file) $(plan_master_file)
+	. $(VENV)bin/activate && \
+	beat_analytics email click $(mail_format_events_file) $(user_master_file) $(plan_master_file) $(mail_click_file)
 
 $(user_master_file): $(DATASETS_DIR)user.tsv $(DATASETS_DIR)user_plan.tsv $(DATASETS_DIR)plan_history.tsv
 	. $(VENV)bin/activate && \
