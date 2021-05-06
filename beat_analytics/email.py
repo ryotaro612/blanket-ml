@@ -60,6 +60,43 @@ def format_raw_events(input: str, output: str):
                 )
 
 
+def filter_link_events(events_file: str, output: str):
+    with open(events_file) as in_f, open(output, "w") as out_f:
+        fieldnames = [
+            "event_id",
+            "email",
+            "ip",
+            "sg_event_id",
+            "sg_message_id",
+            "sg_template_id",
+            "sg_template_name",
+            "event_timestamp",
+            "url",
+            "useragent",
+            "timestamp",
+        ]
+        writer = csv.DictWriter(out_f, fieldnames)
+        writer.writeheader()
+        for row in csv.DictReader(in_f):
+            events = json.loads(row["event"])
+            for event in [event for event in events if event["event"] == "click"]:
+                writer.writerow(
+                    {
+                        "event_id": row["event_id"],
+                        "email": event["email"],
+                        "ip": event.get("ip", None),
+                        "sg_event_id": event["sg_event_id"],
+                        "sg_message_id": event["sg_message_id"],
+                        "sg_template_id": event.get("sg_template_id", None),
+                        "sg_template_name": event.get("sg_template_name", None),
+                        "event_timestamp": event["timestamp"],
+                        "url": event["url"],
+                        "useragent": event.get("useragent", None),
+                        "timestamp": row["timestamp"],
+                    }
+                )
+
+
 def load_event_file(filename: str):
     with open(filename) as f:
         result = []
@@ -94,27 +131,22 @@ def filter_email_open_events(
             writer.writerow(event)
 
 
-def filter_email_click_events(
-    events_file: str, users_file: str, plans: dict, output: str
-):
-    filter_events(events_file, users_file, plans, "click", output)
+def statistics_link_events(events_file: str, users_file: str, plans: dict, output: str):
+    attach_user_status(events_file, users_file, plans, "click", output)
 
 
-def filter_events(
+def attach_user_status(
     events_file: str, users_file: str, plans: dict, event_type: str, output: str
 ):
     events = load_event_file(events_file)
-    selected_events = [event for event in events if event["event"] == event_type]
-    if len(selected_events) == 0:
+    if len(events) == 0:
         return
     users = user.load_user_master(users_file)
     mail_user = dict((user["email"], user) for user in users)
     with open(output, "w") as f:
-        writer = csv.DictWriter(
-            f, fieldnames=list(selected_events[0].keys()) + ["user status"]
-        )
+        writer = csv.DictWriter(f, fieldnames=list(events[0].keys()) + ["user status"])
         writer.writeheader()
-        for event in selected_events:
+        for event in events:
             plan_id = user.resolve_plan_id_by_email(
                 event["email"], event["timestamp"], mail_user, plans
             )
