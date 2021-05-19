@@ -20,12 +20,10 @@ def fetch_raw_events(client: bq.Client, output_filename: str):
             writer.writerow([field for field in row])
 
 
-def format_raw_events(input: str, output: str):
-    """ """
+def normalize_open_email(input: str, output: str):
     with open(input) as in_f, open(output, "w") as out_f:
         fieldnames = [
             "event_id",
-            "event",
             "email",
             "event_timestamp",
             "ip",
@@ -41,11 +39,10 @@ def format_raw_events(input: str, output: str):
         writer.writeheader()
         for row in csv.DictReader(in_f):
             events = json.loads(row["event"])
-            for event in events:
+            for event in [event for event in events if event["event"] == "open"]:
                 writer.writerow(
                     {
                         "event_id": row["event_id"],
-                        "event": event["event"],
                         "email": event["email"],
                         "event_timestamp": event["timestamp"],
                         "ip": event.get("ip", None),
@@ -108,36 +105,15 @@ def load_event_file(filename: str):
         return result
 
 
-def filter_email_open_events(
-    events_file: str, users_file: str, plans: dict, output: str
-):
-    events = load_event_file(events_file)
-    open_events = [event for event in events if event["event"] == "open"]
-    if len(open_events) == 0:
-        return
-    users = user.load_user_master(users_file)
-
-    mail_user = dict((user["email"], user) for user in users)
-    with open(output, "w") as f:
-        writer = csv.DictWriter(
-            f, fieldnames=list(open_events[0].keys()) + ["user status"]
-        )
-        writer.writeheader()
-        for event in open_events:
-            plan_id = user.resolve_plan_id_by_email(
-                event["email"], event["timestamp"], mail_user, plans
-            )
-            event["user status"] = plans.get(plan_id, "Free")
-            writer.writerow(event)
+def statistics_open_events(events_file: str, users_file: str, plans: dict, output: str):
+    attach_user_status(events_file, users_file, plans, output)
 
 
 def statistics_link_events(events_file: str, users_file: str, plans: dict, output: str):
-    attach_user_status(events_file, users_file, plans, "click", output)
+    attach_user_status(events_file, users_file, plans, output)
 
 
-def attach_user_status(
-    events_file: str, users_file: str, plans: dict, event_type: str, output: str
-):
+def attach_user_status(events_file: str, users_file: str, plans: dict, output: str):
     events = load_event_file(events_file)
     if len(events) == 0:
         return

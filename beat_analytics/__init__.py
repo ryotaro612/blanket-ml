@@ -32,22 +32,29 @@ def fetch_email_raw_events(output: str):
     em.fetch_raw_events(client, output)
 
 
-@email.command("format")
+@email.group()
+def opening():
+    pass
+
+
+@opening.command("normalize")
 @click.argument("input")
 @click.argument("output")
-def format_raw_events(input: str, output: str):
+def normalize_open_email(input: str, output: str):
     """ """
-    em.format_raw_events(input, output)
+    em.normalize_open_email(input, output)
 
 
-@email.command("open")
+@opening.command("statistics")
 @click.argument("events_file")
 @click.argument("users_file")
 @click.argument("plan_file")
 @click.argument("output")
-def email_open(events_file: str, users_file: str, plan_file: str, output: str):
+def statistics_open_email(
+    events_file: str, users_file: str, plan_file: str, output: str
+):
     plans = p.create_plan(plan_file)
-    em.filter_email_open_events(events_file, users_file, plans, output)
+    em.statistics_open_events(events_file, users_file, plans, output)
 
 
 @email.group()

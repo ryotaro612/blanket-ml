@@ -16,16 +16,17 @@ test: $(VENV)bin/activate $(BASE_DIR).env ## Run unit tests.
 clean: ## Delete unnecessary files.
 	rm -rf $(VENV) $(PYENV_FILE)
 
+user_master_file := $(DATASETS_DIR)users_master$(SUFFIX).jsonl
+plan_master_file := $(DATASETS_DIR)plan$(SUFFIX).tsv
 mail_raw_email_events_file := $(DATASETS_DIR)raw_email_events$(SUFFIX).csv
-mail_format_events_file := $(DATASETS_DIR)mail_format_events$(SUFFIX).csv
 mail_open_file := $(DATASETS_DIR)mail_open$(SUFFIX).csv
+mail_open_statistics_file := $(DATASETS_DIR)mail_open_statistics$(SUFFIX).csv
 mail_click_file := $(DATASETS_DIR)mail_click$(SUFFIX).csv
 mail_click_statistics_file := $(DATASETS_DIR)mail_click_statistics$(SUFFIX).csv
 requests_raw_file := $(DATASETS_DIR)raw_requests$(SUFFIX).csv
-user_master_file := $(DATASETS_DIR)users_master$(SUFFIX).jsonl
-plan_master_file := $(DATASETS_DIR)plan$(SUFFIX).tsv
 
-all: $(mail_open_file) $(mail_click_statistics_file) $(requests_raw_file) ## Create all the artifacts.
+
+all: $(mail_open_statistics_file) $(mail_click_statistics_file) $(requests_raw_file) ## Create all the artifacts.
 	@echo
 
 $(mail_raw_email_events_file): ## Fetch raw email events.
@@ -36,19 +37,19 @@ $(requests_raw_file): ## Fetch raw requests.
 	. $(VENV)bin/activate && \
 	beat_analytics web raw $(requests_raw_file)
 
-$(mail_format_events_file): $(mail_raw_email_events_file)
+$(mail_open_file): $(mail_raw_email_events_file)
 	. $(VENV)bin/activate && \
-	beat_analytics email format $(mail_raw_email_events_file) $(mail_format_events_file)
+	beat_analytics email opening normalize $(mail_raw_email_events_file) $(mail_open_file)
 
-$(mail_open_file): $(mail_format_events_file) $(user_master_file) $(plan_master_file)
+$(mail_open_statistics_file): $(mail_open_file) $(user_master_file) $(plan_master_file)
 	. $(VENV)bin/activate && \
-	beat_analytics email open $(mail_format_events_file) $(user_master_file) $(plan_master_file) $(mail_open_file)
+	beat_analytics email opening statistics $(mail_open_file) $(user_master_file) $(plan_master_file) $(mail_open_statistics_file)
 
 $(mail_click_file): $(mail_raw_email_events_file)
 	. $(VENV)bin/activate && \
 	beat_analytics email link normalize $(mail_raw_email_events_file) $(mail_click_file)
 
-$(mail_click_statistics_file): $(mail_click_file)
+$(mail_click_statistics_file): $(mail_click_file) $(user_master_file) $(plan_master_file)
 	. $(VENV)bin/activate && \
 	beat_analytics email link statistics $(mail_click_file) $(user_master_file) $(plan_master_file) $(mail_click_statistics_file)
 
