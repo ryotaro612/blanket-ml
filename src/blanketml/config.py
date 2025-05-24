@@ -1,7 +1,21 @@
 import tomllib
+import typing
+import dataclasses
 
 
-def load(config_path: str) -> dict:
+@dataclasses.dataclass
+class Post:
+    ja: str
+    en: typing.Union[str, None]
+    paper: str
+
+
+@dataclasses.dataclass
+class Config:
+    posts: typing.Dict[str, Post]
+
+
+def load(config_path: str) -> Config:
     """
     Load a configuration file from the given path.
 
@@ -14,4 +28,10 @@ def load(config_path: str) -> dict:
 
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
-        return config
+
+        posts = {
+            name: Post(ja=post["ja"], en=post.get("en", None), paper=post["paper"])
+            for name, post in config["posts"].items()
+        }
+
+        return Config(posts)

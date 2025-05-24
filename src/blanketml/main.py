@@ -1,4 +1,5 @@
 from blanketml import parser
+import blanketml.config as conf
 
 
 def main(args: list[str]) -> None:
@@ -9,4 +10,4 @@ def main(args: list[str]) -> None:
         args (list[str]): List of command line arguments.
     """
     res = parser.parse(args)
-    print(res)
+    config = conf.load(res.config_file)

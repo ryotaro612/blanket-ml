@@ -1,10 +1,11 @@
-import argparse
-import typing
+import dataclasses
 
 
-class Command(typing.TypedDict):
+@dataclasses.dataclass
+class Command:
     config_file: str
 
+
 def parse(args: list[str]) -> Command:
-    """Parse command line arguments."""
-    return {'config_file': args[0]} 
+    """Parses command line arguments."""
+    return Command(args[0])
