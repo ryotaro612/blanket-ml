@@ -7,3 +7,14 @@ requires-python = ">=3.13"
 dependencies = [
     "prompt-toolkit>=3.0.51",
 ]
+
+[project.scripts]
+# package.module:func
+blanketml= "blanketml:main"
+[tool.pyright]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.uv]
+package = true
