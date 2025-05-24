@@ -1,0 +1,36 @@
+{
+  "folders": [
+    {
+      "path": "./"
+    }
+  ],
+  "settings": {
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+      {
+        "file": "./.vscode/copilot-commit-message-instructions.md"
+      }
+    ],
+    "[makefile]": {
+      "editor.insertSpaces": false,
+      "editor.detectIndentation": false,
+      "editor.tabSize": 4
+    },
+    "[python]": {
+      // See extention
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true,
+
+    },
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
+    "python.testing.unittestArgs": [
+      "-v",
+      "-s",
+      "./tests",
+      "-p",
+      "*_test.py"
+    ],
+    "black-formatter.interpreter": ["${cwd}/.venv/bin/python"]
+  }
+}

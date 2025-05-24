@@ -1,5 +1,4 @@
+import sys
+from blanketml import main
 
-
-
-def main():
-    ...
+__all__ = ["main"]
