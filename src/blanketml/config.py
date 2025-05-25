@@ -5,6 +5,8 @@ import dataclasses
 
 @dataclasses.dataclass
 class Post:
+    """Represents a post with its details."""
+
     ja: str
     en: typing.Union[str, None]
     paper: str
