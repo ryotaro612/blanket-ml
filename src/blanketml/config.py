@@ -14,6 +14,7 @@ class Post:
 
 @dataclasses.dataclass
 class Config:
+    insutruction: str
     posts: typing.Dict[str, Post]
 
 
@@ -36,4 +37,4 @@ def load(config_path: str) -> Config:
             for name, post in config["posts"].items()
         }
 
-        return Config(posts)
+        return Config(config["instruction"], posts)

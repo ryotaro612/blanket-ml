@@ -14,9 +14,10 @@ class TestConfig(unittest.TestCase):
         # assert
         self.assertEqual(
             Config(
+                insutruction="Hi",
                 posts={
                     "bert": Post(ja="post.md", en=None, paper="a.pdf"),
-                }
+                },
             ),
             result,
         )
