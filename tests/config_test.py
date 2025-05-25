@@ -6,6 +6,7 @@ from blanketml.config import *
 class TestConfig(unittest.TestCase):
 
     def test_load(self):
+
         # arrange
         testfile = path.join(path.dirname(path.abspath(__file__)), "config.toml")
         # act
