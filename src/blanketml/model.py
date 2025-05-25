@@ -1,12 +1,12 @@
 from google import genai
 from google.genai import chats
-from google.genai.types import GenerateContentResponse
+from google.genai.types import GenerateContentResponse, Part, Blob
 import typing
 
 
 def create_chat() -> chats.Chat:
     client = genai.Client()
-    return client.chats.create(model="gemini-2.5-flash")
+    return client.chats.create(model="gemini-2.0-flash")
 
 
 class Example(typing.TypedDict):
@@ -23,28 +23,15 @@ def fewshot(
         with open(example["paper_path"], "rb") as f:
             paper_content = f.read()
             parts.append(
-                {
-                    "inline_data": {
-                        "data": paper_content,
-                        "mine_type": "application/pdf",
-                    }
-                }
+                Part(inline_data=Blob(data=paper_content, mime_type="application/pdf"))
             )
         with open(example["ja"], "r", encoding="utf-8") as f:
-            parts.append(
-                {
-                    "text": f.read(),
-                }
-            )
+            print(Part(text=f.read()))
+            parts.append(Part(text=f.read()))
 
     with open(paper_path, "rb") as f:
         paper_content = f.read()
         parts.append(
-            {
-                "inline_data": {
-                    "data": paper_content,
-                    "mine_type": "application/pdf",
-                }
-            }
+            Part(inline_data=Blob(data=paper_content, mime_type="application/pdf"))
         )
     return chat.send_message(parts, {"system_instruction": system_instruction})
