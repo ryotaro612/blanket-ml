@@ -6,8 +6,8 @@ import csv
 
 
 if __name__ == "__main__":
-    source_file = sys.argv[0]
-    output_file = sys.argv[1]
+    source_file = sys.argv[1]
+    output_file = sys.argv[2]
 
     with open(source_file) as s_f, open(output_file, "w") as o_f:
         reader = csv.DictReader(s_f)
@@ -28,21 +28,21 @@ if __name__ == "__main__":
             messages = [
                 {
                     "role": "developer",
-                    "content": "以下の方針でPDF形式の論文を要約してください。\n- 文末は常体\n- 箇条書きを使わない\n- 見出しを使わない\n- 重要な数式とその解説を含める",
+                    "content": "以下の方針でPDF形式の論文を要約してください。\n- 文末は常体\n- 箇条書きを避ける\n- 見出しを控える\n- 重要な数式とその解説を含める",
                 },
                 {
                     "role": "user",
                     "content": [
                         {
                             "text": "論文を要約してください。要約をブログに記載したいです。",
-                            "type": "string",
+                            "type": "text",
                         },
-                        {"type": "file", "file": {"file_data": encoded_pdf}},
+                        {"type": "text", "file": {"file_data": encoded_pdf}},
                     ],
                 },
                 {"role": "assistant", "content": md},
             ]
-            line = json.dumps(messages)
+            line = json.dumps({"messages": messages}, ensure_ascii=False)
             if i:
                 o_f.write("\n")
             o_f.write(line)
