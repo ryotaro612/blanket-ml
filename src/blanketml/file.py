@@ -13,7 +13,7 @@ def read_bin_base64(file_path: str) -> str:
     """
     with open(file_path, "rb") as file:
         file_bytes = file.read()
-        encoded_file = base64.b64encode(file_bytes).decode()
+        encoded_file = base64.b64encode(file_bytes).decode("utf-8")
     return encoded_file
 
 
